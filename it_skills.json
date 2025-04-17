@@ -1,0 +1,78 @@
+{
+  "IT_SKILLS": [
+    "python", "javascript", "java", "c++", "c#", "go", "rust", "typescript",
+    "swift", "kotlin", "php", "dart", "shell scripting", "bash",
+
+    "django", "flask", "spring", "express.js", "node.js", ".net",
+    "react", "angular", "vue.js", "bootstrap", "jquery",
+
+    "machine learning", "deep learning", "reinforcement learning", "natural language processing",
+    "computer vision", "neural networks", "predictive modeling", "data mining",
+    "tensorflow", "pytorch", "keras", "pandas", "numpy", "scikit-learn",
+    "data analysis", "statistical methods", "feature engineering",
+    "graph neural networks", "recommendation systems", "data streaming",
+    "event processing", "optimization methods", "information retrieval",
+    "gpu acceleration", "hybrid models", "piml", "geospatial data analysis",
+    "mlops", "data preprocessing", "data pipelines", "hadoop", "spark", "hive", "kafka",
+
+    "sql", "postgresql", "mysql", "oracle db", "microsoft sql server",
+    "nosql", "mongodb", "cassandra", "elasticsearch", "neo4j", "hbase", "sqlite", "redis", "firebase",
+
+    "git", "docker", "kubernetes", "aws", "google cloud platform", "microsoft azure",
+    "devops", "jenkins", "ansible", "terraform", "mlops", "ci/cd",
+    "continuous integration", "continuous deployment", "virtualization", "serverless computing",
+    "cloud architecture", "cloud security", "cloud migration", "cloud cost optimization",
+
+    "agile", "scrum", "kanban", "waterfall", "project management", "product management",
+    "jira", "confluence", "trello", "asana",
+
+    "cybersecurity", "penetration testing", "ethical hacking", "cryptography", "ssl", "tls",
+    "two-factor authentication", "siem", "owasp", "intrusion detection systems",
+
+    "test-driven development", "unit testing", "integration testing", "selenium",
+    "junit", "pytest", "test automation", "load testing", "performance testing", "security testing", "qa automation", "postman",
+
+    "bigquery", "apache hadoop", "apache spark", "data warehousing", "etl processes",
+    "tableau", "power bi", "google analytics", "excel advanced",
+
+    "virtual reality", "augmented reality", "iot development", "embedded systems",
+    "mqtt", "robotics", "blockchain", "cryptocurrency", "citizends",
+
+    "ux/ui design", "figma", "adobe xd", "sketch", "wireframing", "prototyping",
+    "interaction design", "user research", "usability testing",
+
+    "restful apis", "soap", "http", "https", "tcp/ip", "dns", "vpn", "load balancing", "proxy servers"
+  ],
+
+  "ROLE_SKILLS": {
+    "Data Scientist": [
+      "python", "c++", "sql", "docker", "linux", "bash", "git", "data pipelines",
+      "data analysis", "machine learning", "deep learning", "ml", "dl", "ci cd",
+      "ci/cd", "continuous integration", "continuous deployment", "recommendation systems",
+      "recommender systems", "natural language processing", "nlp", 
+      "nosql databases", "nosql"
+    ],
+    "Data Engineer": [
+      "python", "c++", "sql", "docker", "linux", "bash", "git", "data pipelines",
+      "data analysis", "machine learning", "deep learning", "ml", "dl", "ci/cd",
+      "ci cd", "continuous integration", "continuous deployment", "etl processes", 
+      "extract transform load", "data lakes", "distributed systems",
+      "data streaming", "event processing", "nosql databases", "nosql", "hadoop",
+      "spark", "natural language processing", "nlp"
+    ],
+    "Technical Analyst": [
+      "python", "sql", "docker", "linux", "bash", "git", "data pipelines",
+      "data analysis", "machine learning", "ml", "deep learning", "business analysis",
+      "ba", "requirement gathering", "technical documentation", "data visualization",
+      "statistical analysis", "stats", "dl", "recommendation systems", "recommender systems",
+      "natural language processing", "nlp", "nosql databases", "nosql"
+
+    ],
+    "AI Manager": [
+      "python", "sql", "docker", "linux", "bash", "git", "data pipelines",
+      "data analysis", "machine learning", "ml", "deep learning", "dl",
+      "natural language processing", "nlp", "nosql databases", "nosql",
+      "ai strategy"
+    ]
+  }
+}
