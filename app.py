@@ -45,10 +45,44 @@ def extract_skills(text):
     return list(set(found_skills))
 
 def compare_skills(resume_skills, vacancy_skills):
-    matched = list(set(resume_skills) & set(vacancy_skills))
-    missing = list(set(vacancy_skills) - set(resume_skills))
-    match_percent = round(100 * len(matched) / max(len(vacancy_skills), 1), 1)
-    return matched, missing, match_percent
+    # vacancy_skills теперь будет словарем с приоритетами
+    critical = set(vacancy_skills.get('critical', []))
+    important = set(vacancy_skills.get('important', []))
+    optional = set(vacancy_skills.get('optional', []))
+    
+    all_required = critical.union(important).union(optional)
+    
+    # Базовые совпадения
+    matched_all = list(set(resume_skills) & all_required)
+    missing_all = list(all_required - set(resume_skills))
+    
+    # Совпадения по приоритетам
+    matched_critical = list(set(resume_skills) & critical)
+    matched_important = list(set(resume_skills) & important)
+    matched_optional = list(set(resume_skills) & optional)
+    
+    # Расчет взвешенного процента (критические x3, важные x2, дополнительные x1)
+    total_weight = len(critical)*3 + len(important)*2 + len(optional)*1
+    if total_weight == 0:
+        return {}, [], [], 0
+    
+    match_weight = (len(matched_critical)*3 + len(matched_important)*2 + len(matched_optional)*1)
+    match_percent = round(100 * match_weight / total_weight, 1)
+    
+    return {
+        'critical': {
+            'matched': matched_critical,
+            'missing': list(critical - set(resume_skills))
+        },
+        'important': {
+            'matched': matched_important,
+            'missing': list(important - set(resume_skills))
+        },
+        'optional': {
+            'matched': matched_optional,
+            'missing': list(optional - set(resume_skills))
+        }
+    }, matched_all, missing_all, match_percent
 
 def match_roles(user_skills, role_skills_dict, vacancy_skills=None, min_match=0):
     role_matches = {}
@@ -78,15 +112,20 @@ def extract_name(text):
         return any(word.lower().endswith(p) for p in patronymics_keywords)
 
     for line in lines:
-        words = line.split()
-        if any(has_patronymic(word) for word in words) and 2 <= len(words) <= 4:
-            return " ".join(words)
-
+        # Обработка строк с "ФИО:", "Имя:", "Name:"
         if re.search(r"(ФИО|Имя|Name)\s*[:\-]", line, re.IGNORECASE):
             possible_name = re.split(r"[:\-]", line, maxsplit=1)[1].strip()
+            # Удаляем возможные остатки меток (если разделитель был пробелом)
+            possible_name = re.sub(r'^(ФИО|Имя|Name)\s*', '', possible_name, flags=re.IGNORECASE).strip()
             if 2 <= len(possible_name.split()) <= 4:
                 return possible_name
 
+        words = line.split()
+        # Проверка на отчество и подходящую длину
+        if any(has_patronymic(word) for word in words) and 2 <= len(words) <= 4:
+            return " ".join(words)
+
+        # Проверка на все слова с заглавной буквы
         if all(w.istitle() or w.isupper() for w in words) and 2 <= len(words) <= 4 and not any(word.lower() in ignore_keywords for word in words):
             return " ".join(words)
 
@@ -168,32 +207,40 @@ def upload_files():
     resume_skills = extract_skills(resume_text)
     name = extract_name(resume_text)
     
-     # Определяем навыки вакансии
+    # Определяем навыки вакансии
     if vacancy_source == 'file':
         vacancy_file = request.files.get('vacancy')
         if not vacancy_file:
             return jsonify({"error": "Пожалуйста, загрузите файл вакансии"}), 400
         vacancy_text = extract_text_from_docx(vacancy_file) if vacancy_file.filename.endswith(".docx") else extract_text_from_pdf(vacancy_file)
-        vacancy_skills = extract_skills(vacancy_text)
+        vacancy_skills = {
+            'critical': extract_skills(vacancy_text),  # Для файла все навыки считаем критическими
+            'important': [],
+            'optional': []
+        }
     else:
-        manual_skills = request.form.get('manual_skills', '')
-        if not manual_skills:
-            return jsonify({"error": "Пожалуйста, укажите навыки вакансии"}), 400
-        vacancy_skills = [skill.strip() for skill in manual_skills.split(',') if skill.strip()]
+        # Получаем навыки из формы
+        try:
+            vacancy_skills = {
+                'critical': json.loads(request.form.get('critical_skills', '[]')),
+                'important': json.loads(request.form.get('important_skills', '[]')),
+                'optional': json.loads(request.form.get('optional_skills', '[]'))
+            }
+        except json.JSONDecodeError:
+            return jsonify({"error": "Ошибка в формате навыков"}), 400
     
-    # Извлечение контактной информации
+    # Контактная информация
     email = extract_email(resume_text)
     phone = extract_phone(resume_text)
 
-    matched, missing, match_percent = compare_skills(resume_skills, vacancy_skills)
+    # Сравниваем навыки
+    skills_by_priority, matched, missing, match_percent = compare_skills(resume_skills, vacancy_skills)
     role_results = match_roles(resume_skills, ROLE_SKILLS, None, 1)
 
     return jsonify({
         "name": name,
-        "contacts": {
-            "email": email,
-            "phone": phone
-        },
+        "contacts": {"email": email, "phone": phone},
+        "skills_by_priority": skills_by_priority,
         "matched": matched,
         "missing": missing,
         "match_percent": match_percent,

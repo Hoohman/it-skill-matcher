@@ -52,7 +52,7 @@
 ```
 ├── static/
 │   ├── style.css          			# стили приложения
-│	├──	skills-autocomplete.js 		# логика для автозаполнения
+│   ├── skills-autocomplete.js 			# логика для автозаполнения
 │   └── script.js          			# клиентская логика (загрузка, предпросмотр, кнопки)
 ├── templates/
 │   └── index.html         			# основной HTML-шаблон

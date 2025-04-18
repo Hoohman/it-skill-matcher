@@ -38,6 +38,12 @@ document.getElementById('upload-form').addEventListener('submit', async function
     const resultsElement = document.getElementById('results');
     const selectedSkills = Array.from(document.querySelectorAll('.skill-tag'))
         .map(tag => tag.dataset.skill);
+    const criticalSkills = Array.from(document.querySelectorAll('#critical-skills .skill-tag'))
+        .map(tag => tag.dataset.skill);
+    const importantSkills = Array.from(document.querySelectorAll('#important-skills .skill-tag'))
+        .map(tag => tag.dataset.skill);
+    const optionalSkills = Array.from(document.querySelectorAll('#optional-skills .skill-tag'))
+        .map(tag => tag.dataset.skill);
 
     // Сбрасываем предыдущие результаты и ошибки
     errorElement.style.display = 'none';
@@ -67,11 +73,13 @@ document.getElementById('upload-form').addEventListener('submit', async function
     const formData = new FormData();
     formData.append('resume', resumeFile);
     formData.append('vacancy_source', vacancySource);
-
-    if (vacancySource === 'file') {
-        formData.append('vacancy', vacancyFile);
-    } else {
-        formData.append('manual_skills', selectedSkills.join(','));
+    
+    if (document.querySelector('input[name="vacancy_source"]:checked').value === 'manual') {
+        formData.append('critical_skills', JSON.stringify(criticalSkills));
+        formData.append('important_skills', JSON.stringify(importantSkills));
+        formData.append('optional_skills', JSON.stringify(optionalSkills));
+    } else if (document.getElementById('vacancy').files[0]) {
+        formData.append('vacancy', document.getElementById('vacancy').files[0]);
     }
 
     try {
@@ -89,6 +97,28 @@ document.getElementById('upload-form').addEventListener('submit', async function
             // Показываем контакты
             document.getElementById('contact-email').textContent = data.contacts.email;
             document.getElementById('contact-phone').textContent = data.contacts.phone;
+
+            // Показываем результаты по приоритетам
+            const priorityResults = `
+            <div class="priority-results">
+                <h4>🔴 Критические навыки:</h4>
+                <p>Совпало: ${data.skills_by_priority.critical.matched.join(', ') || 'нет'}</p>
+                <p>Отсутствуют: ${data.skills_by_priority.critical.missing.join(', ') || 'нет'}</p>
+                
+                <h4>🟡 Желательные навыки:</h4>
+                <p>Совпало: ${data.skills_by_priority.important.matched.join(', ') || 'нет'}</p>
+                <p>Отсутствуют: ${data.skills_by_priority.important.missing.join(', ') || 'нет'}</p>
+                
+                <h4>🟢 Дополнительные навыки:</h4>
+                <p>Совпало: ${data.skills_by_priority.optional.matched.join(', ') || 'нет'}</p>
+                <p>Отсутствуют: ${data.skills_by_priority.optional.missing.join(', ') || 'нет'}</p>
+            </div>
+        `;
+
+        document.getElementById('priority-results').innerHTML = priorityResults;
+        document.getElementById('matched-skills').textContent = data.matched.length
+            ? data.matched.join(', ')
+            : 'Ничего не найдено';
 
             // Показываем результаты
             document.getElementById('matched-skills').textContent = data.matched.length

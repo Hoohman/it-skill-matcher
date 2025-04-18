@@ -42,8 +42,24 @@
                     <label for="vacancy-skills">🔍 Требуемые навыки:</label>
                     <input type="text" id="vacancy-skills" placeholder="Начните вводить навык..." autocomplete="off">
                     <div id="skills-suggestions" class="suggestions-container"></div>
-                    <div id="selected-skills" class="selected-skills"></div>
-                    <input type="hidden" name="selected_skills" id="selected-skills-input">
+                    
+                    <div class="priority-skills">
+                        <h4>Приоритет навыков:</h4>
+                        <div class="priority-columns">
+                            <div class="priority-column">
+                                <h5>🔴 Критически важные</h5>
+                                <div id="critical-skills" class="selected-skills priority-list"></div>
+                            </div>
+                            <div class="priority-column">
+                                <h5>🟡 Желательные</h5>
+                                <div id="important-skills" class="selected-skills priority-list"></div>
+                            </div>
+                            <div class="priority-column">
+                                <h5>🟢 Дополнительные</h5>
+                                <div id="optional-skills" class="selected-skills priority-list"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -55,23 +71,26 @@
             <button id="toggle-preview">📖 Показать резюме</button>
             <div id="resume-preview"></div>
             <h2>Кандидат: <span id="name"></span></h2>
-
+        
             <div class="contact-info">
                 <h3>📧 Контактная информация:</h3>
                 <p>Email: <span id="contact-email">не указан в анкете</span></p>
                 <p>Телефон: <span id="contact-phone">не указан в анкете</span></p>
             </div>
-
+        
             <h2>📊 Результаты анализа</h2>
             <h3>✅ Совпадающие навыки:</h3>
             <p id="matched-skills"></p>
-
+        
             <h3>❌ Недостающие навыки:</h3>
             <p id="missing-skills"></p>
-
+        
             <h3>📈 Общая оценка:</h3>
             <p id="match-percent"></p>
-
+        
+            <h3>🔍 Детализация по приоритетам:</h3>
+            <div id="priority-results"></div>
+        
             <h3>🎯 Соответствие ролям:</h3>
             <div id="role-results"></div>
         </div>

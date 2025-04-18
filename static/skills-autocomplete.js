@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const skillsInput = document.getElementById('vacancy-skills');
     const suggestionsContainer = document.getElementById('skills-suggestions');
-    const selectedSkillsContainer = document.getElementById('selected-skills');
     let allSkills = [];
 
     // Загружаем навыки с сервера
@@ -9,7 +8,34 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             allSkills = data.IT_SKILLS;
+            initDragAndDrop(); // Инициализируем перетаскивание после загрузки навыков
         });
+
+    // Инициализация перетаскивания
+    function initDragAndDrop() {
+        const containers = document.querySelectorAll('.priority-list');
+        
+        containers.forEach(container => {
+            container.addEventListener('dragover', e => {
+                e.preventDefault();
+                container.style.backgroundColor = 'rgba(0,0,0,0.05)';
+            });
+            
+            container.addEventListener('dragleave', () => {
+                container.style.backgroundColor = '';
+            });
+            
+            container.addEventListener('drop', e => {
+                e.preventDefault();
+                container.style.backgroundColor = '';
+                const skillId = e.dataTransfer.getData('text/plain');
+                const skill = document.getElementById(skillId);
+                if (skill) {
+                    container.appendChild(skill);
+                }
+            });
+        });
+    }
 
     // Обработчик ввода
     skillsInput.addEventListener('input', function() {
@@ -20,9 +46,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const filteredSkills = allSkills.filter(skill => 
-            skill.toLowerCase().includes(inputText)
-            && !Array.from(selectedSkillsContainer.children)
-                     .some(tag => tag.dataset.skill === skill))
+            skill.toLowerCase().includes(inputText) &&
+            !Array.from(document.querySelectorAll('.skill-tag'))
+                 .some(tag => tag.dataset.skill === skill)
+        );
 
         if (filteredSkills.length > 0) {
             renderSuggestions(filteredSkills);
@@ -32,13 +59,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Рендер подсказок
     function renderSuggestions(skills) {
         suggestionsContainer.innerHTML = skills.map(skill => `
             <div class="suggestion-item" data-skill="${skill}">${skill}</div>
         `).join('');
 
-        // Добавляем обработчики клика
         document.querySelectorAll('.suggestion-item').forEach(item => {
             item.addEventListener('click', function() {
                 addSelectedSkill(this.dataset.skill);
@@ -48,26 +73,32 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Добавление выбранного навыка
     function addSelectedSkill(skill) {
-        if (Array.from(selectedSkillsContainer.children).some(tag => tag.dataset.skill === skill)) {
+        if (Array.from(document.querySelectorAll('.skill-tag'))
+            .some(tag => tag.dataset.skill === skill)) {
             return;
         }
 
         const skillTag = document.createElement('div');
         skillTag.className = 'skill-tag';
         skillTag.dataset.skill = skill;
+        skillTag.draggable = true;
+        skillTag.id = 'skill-' + Math.random().toString(36).substr(2, 9);
         skillTag.innerHTML = `
             ${skill}
-            <button type="button">&times;</button>
+            <button type="button" class="remove-skill">&times;</button>
         `;
 
-        // Удаление навыка по клику на крестик
-        skillTag.querySelector('button').addEventListener('click', function() {
+        // Drag events
+        skillTag.addEventListener('dragstart', e => {
+            e.dataTransfer.setData('text/plain', skillTag.id);
+        });
+
+        skillTag.querySelector('.remove-skill').addEventListener('click', function() {
             skillTag.remove();
         });
 
-        selectedSkillsContainer.appendChild(skillTag);
+        document.getElementById('important-skills').appendChild(skillTag);
     }
 
     // Закрываем подсказки при клике вне поля
